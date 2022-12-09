@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import {signup} from '../api/apiCalls';
 class UserSignupPage extends React.Component{
     
     state ={
@@ -7,6 +7,7 @@ class UserSignupPage extends React.Component{
         displayName:null,
         password :null,
         passwordRepead :null,
+        pendingApiCall :false
     }
 
     onChange = (event)=>{
@@ -52,7 +53,7 @@ class UserSignupPage extends React.Component{
 
  
 
-onClickSignUp=event=>{
+onClickSignUp = async event=>{
     event.preventDefault();
 
 const {username, displayName, password}=this.state;
@@ -63,32 +64,51 @@ const {username, displayName, password}=this.state;
         password
     };
 
-    axios.post('/api/1.0/users',body)
-}
+    this.setState({pendingApiCall:true})
+
+    try{
+   const response= await signup(body);
+    }catch(error){
+
+    }
+this.setState({pendingApiCall:false});
+    // signup(body) //postan success donub donmemesine baxir. defaultda okeydir
+    // .then((response) => {
+    //     this.setState({pendingApiCall:false})
+    // }).catch(error =>{
+    //     this.setState({pendingApiCall:false})
+    // });
+};
 
     render(){
+        const {pendingApiCall}=this.state;
         return(
+            <div className="container">
         <form>
-            <h1>Sign Up</h1>
-            <div>
+            <h1 className="text-center">Sign Up</h1>
+            <div className="form-goup">
                 <label>Username</label>
-                <input name="username" onChange={this.onChange}/>
+                <input className="form-control" name="username" onChange={this.onChange}/>
             </div>
-            <div>
+            <div className="form-goup">
                 <label>Display Name</label>
-                <input name="displayName" onChange={this.onChange}/>
+                <input className="form-control" name="displayName" onChange={this.onChange}/>
             </div>
-            <div>
+            <div className="form-goup">
                 <label>Password</label>
-                <input type="password" name="password" onChange={this.onChange} />
+                <input className="form-control" type="password" name="password" onChange={this.onChange} />
             </div>
-            <div>
+            <div className="form-goup">
                 <label>Password Repeat</label>
-                <input type="password" name="passwordRepead" onChange={this.onChange} />
+                <input  className="form-control" type="password" name="passwordRepead" onChange={this.onChange} />
             </div>
-          
-            <button onClick={this.onClickSignUp}>Sign Up</button>
+          <div  className="text-center">
+            <button  className="btn btn-primary" onClick={this.onClickSignUp} disabled={pendingApiCall}>
+          {pendingApiCall && <span className="spinner-border spinner-border-sm"></span>}
+Sign Up</button>
+            </div>
         </form>
+        </div>
         );
     }
 }
