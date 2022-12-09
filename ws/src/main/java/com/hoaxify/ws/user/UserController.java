@@ -14,7 +14,7 @@ public class UserController {
 
 
 
-    @Autowired//Depentency Injection
+    @Autowired//Dependency Injection
     UserService userService;
 
     @CrossOrigin
