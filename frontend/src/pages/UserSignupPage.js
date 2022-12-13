@@ -1,5 +1,6 @@
 import React from "react";
 import {signup} from '../api/apiCalls';
+import Input from "../components/input";
 class UserSignupPage extends React.Component{
     
     state ={
@@ -7,7 +8,8 @@ class UserSignupPage extends React.Component{
         displayName:null,
         password :null,
         passwordRepead :null,
-        pendingApiCall :false
+        pendingApiCall :false,
+        errors:{}
     }
 
     onChange = (event)=>{
@@ -15,10 +17,14 @@ class UserSignupPage extends React.Component{
         //Object destoying
         const{name,value}=event.target
 
+        const errors={... this.state.errors} //kopyasini alir
+
+        errors[name]=undefined
         // const value = event.target.value;
         // const name = event.target.name;
         this.setState({
-            [name]:value
+            [name]:value,
+            errors
         })
     }
     
@@ -66,10 +72,14 @@ const {username, displayName, password}=this.state;
 
     this.setState({pendingApiCall:true})
 
-    try{
+try{
    const response= await signup(body);
     }catch(error){
 
+        if(error.response.data.validationErrors){
+        this.setState({errors:error.response.data.validationErrors});
+        }
+        //console.log(error.response.data.validationErrors);
     }
 this.setState({pendingApiCall:false});
     // signup(body) //postan success donub donmemesine baxir. defaultda okeydir
@@ -81,19 +91,16 @@ this.setState({pendingApiCall:false});
 };
 
     render(){
-        const {pendingApiCall}=this.state;
+        const {pendingApiCall,errors}=this.state;
+        const {username,displayName}=errors;
         return(
             <div className="container">
         <form>
             <h1 className="text-center">Sign Up</h1>
-            <div className="form-goup">
-                <label>Username</label>
-                <input className="form-control" name="username" onChange={this.onChange}/>
-            </div>
-            <div className="form-goup">
-                <label>Display Name</label>
-                <input className="form-control" name="displayName" onChange={this.onChange}/>
-            </div>
+            <Input name="username" label="Username" error={username} onChange={this.onChange}/>
+            <Input name="displayName" label="Display Name" error={displayName} onChange={this.onChange}/>
+
+           
             <div className="form-goup">
                 <label>Password</label>
                 <input className="form-control" type="password" name="password" onChange={this.onChange} />
